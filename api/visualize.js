@@ -61,8 +61,7 @@ export default async function handler(req, res) {
   const prompt = `You are a surgical photo editing tool. Make ONE specific change to the first photo and nothing else.
 
 THE ONLY CHANGE TO MAKE:
-Add "${styleName}" concrete landscape curbing/edging only along the existing visible grass-to-bed boundary lines in the foreground of the property photo. Use the second image as your exact reference for the curbing profile, color, and texture.
-
+Add concrete landscape curbing along the existing visible grass-to-bed boundary lines in the foreground of the property photo. The second image is your reference — you must match all three of these equally: (1) the exact cross-section profile shape — study whether it is rounded, flat-topped, slanted, or curved and replicate that geometry precisely, (2) the exact color — match the concrete tone, pigment, and finish, (3) the exact surface texture — match the smoothness, grain, and finish of the concrete surface. All three must look identical to the reference photo.
 STRICT RULES - follow every one of these:
 - Preserve the original lighting, shadows, colors, and exposure of the photo exactly. Do not alter brightness, contrast, or color in any area.
 - Only place curbing where there is already a clear existing edge between lawn and a garden bed. Foreground edges only.
