@@ -537,17 +537,40 @@ function submitUnlockCode() {
 }
 
 // ── PROPERTY PHOTO ──
+// ── IMAGE COMPRESSION ──
+function compressImage(dataUrl, maxWidth, quality) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      let width = img.width;
+      let height = img.height;
+      if (width > maxWidth) {
+        height = Math.round((height * maxWidth) / width);
+        width = maxWidth;
+      }
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      const compressed = canvas.toDataURL('image/jpeg', quality);
+      resolve(compressed);
+    };
+    img.src = dataUrl;
+  });
+}
+
 function handlePropertyPhoto(e) {
   const file = e.target.files[0];
   if (!file) return;
-  propertyPhotoMime = file.type || 'image/jpeg';
   const reader = new FileReader();
-  reader.onload = (ev) => {
-    const dataUrl = ev.target.result;
-    propertyPhotoBase64 = dataUrl.split(',')[1];
+  reader.onload = async (ev) => {
+    const compressed = await compressImage(ev.target.result, 1200, 0.85);
+    propertyPhotoBase64 = compressed.split(',')[1];
+    propertyPhotoMime = 'image/jpeg';
     const zone = document.getElementById('photoZone');
     zone.classList.add('has-photo');
-    zone.innerHTML = `<img src="${dataUrl}" alt="Property"><button class="photo-change-btn" onclick="event.stopPropagation(); document.getElementById('propertyInput').click()">Change photo</button>`;
+    zone.innerHTML = `<img src="${compressed}" alt="Property"><button class="photo-change-btn" onclick="event.stopPropagation(); document.getElementById('propertyInput').click()">Change photo</button>`;
     zone.onclick = null;
     checkReady();
   };
@@ -602,15 +625,16 @@ function renderModalStyles() {
 
 function handleStylePhoto(e) {
   const file = e.target.files[0]; if (!file) return;
-  pendingStyleMime = file.type || 'image/jpeg';
   const reader = new FileReader();
-  reader.onload = (ev) => {
-    pendingStyleBase64 = ev.target.result.split(',')[1];
+  reader.onload = async (ev) => {
+    const compressed = await compressImage(ev.target.result, 800, 0.82);
+    pendingStyleBase64 = compressed.split(',')[1];
+    pendingStyleMime = 'image/jpeg';
     document.getElementById('styleNameInput').style.display = 'block';
     document.getElementById('saveStyleBtn').style.display = 'block';
     document.getElementById('styleNameInput').value = '';
     document.getElementById('styleNameInput').focus();
-    document.getElementById('addStyleZone').innerHTML = `<img src="${ev.target.result}" style="width:100%; height:100px; object-fit:cover; border-radius:8px; display:block;">`;
+    document.getElementById('addStyleZone').innerHTML = `<img src="${compressed}" style="width:100%; height:100px; object-fit:cover; border-radius:8px; display:block;">`;
   };
   reader.readAsDataURL(file);
   e.target.value = '';
