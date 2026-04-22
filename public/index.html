@@ -122,11 +122,12 @@
   .result-label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
   .result-badge { font-size: 11px; background: rgba(45,158,107,0.15); color: var(--green); border: 1px solid rgba(45,158,107,0.3); padding: 3px 10px; border-radius: 20px; }
 
-  .loading-box { padding: 3rem 2rem; text-align: center; display: none; }
-  .loader { width: 40px; height: 40px; border: 3px solid var(--surface2); border-top-color: var(--green); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 1rem; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .loading-box p { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+  .loading-box { padding: 2.5rem 2rem; text-align: center; display: none; }
+  .loading-box p { font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 1.5rem; }
   .loading-box strong { color: var(--text); font-weight: 500; }
+  .progress-bar-wrap { width: 100%; background: var(--surface2); border-radius: 20px; height: 6px; overflow: hidden; margin-bottom: 1rem; }
+  .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--green), #5DCAA5); border-radius: 20px; width: 0%; transition: width 0.8s ease; }
+  .loading-step { font-size: 13px; color: var(--green); font-weight: 500; min-height: 20px; transition: opacity 0.3s; }
 
   /* ── SWIPE SLIDER ── */
   .swipe-wrap { position: relative; width: 100%; overflow: hidden; cursor: col-resize; user-select: none; -webkit-user-select: none; touch-action: none; }
@@ -194,6 +195,122 @@
   /* ── TOAST ── */
   .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 30px; padding: 10px 20px; font-size: 14px; z-index: 9999; transition: transform 0.3s ease; white-space: nowrap; pointer-events: none; }
   .toast.show { transform: translateX(-50%) translateY(0); }
+
+
+  /* ── FULLSCREEN VIEWER ── */
+  #fullscreenViewer {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 500;
+    flex-direction: column;
+  }
+  #fullscreenViewer.active { display: flex; }
+
+  .fs-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    background: rgba(0,0,0,0.7);
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    z-index: 10;
+  }
+
+  .fs-close {
+    background: rgba(255,255,255,0.15);
+    border: none;
+    border-radius: 20px;
+    color: #fff;
+    padding: 6px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+  }
+
+  .fs-style-name {
+    font-size: 13px;
+    color: rgba(255,255,255,0.8);
+    font-weight: 500;
+  }
+
+  .fs-swipe-wrap {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    cursor: col-resize;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+  }
+
+  .fs-after {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    background: #000;
+  }
+
+  .fs-before-wrap {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    overflow: hidden;
+    clip-path: inset(0 50% 0 0);
+  }
+
+  .fs-before {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    background: #000;
+  }
+
+  .fs-divider {
+    position: absolute;
+    top: 0; bottom: 0;
+    left: 50%;
+    width: 2px;
+    background: #fff;
+    transform: translateX(-50%);
+    pointer-events: none;
+    box-shadow: 0 0 8px rgba(0,0,0,0.6);
+  }
+
+  .fs-handle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 48px; height: 48px;
+    background: #fff;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.5);
+    pointer-events: none;
+  }
+
+  .fs-label-before {
+    position: absolute;
+    bottom: 24px; left: 16px;
+    background: rgba(0,0,0,0.65);
+    color: #fff; font-size: 12px; font-weight: 500;
+    padding: 4px 12px; border-radius: 20px;
+    pointer-events: none;
+  }
+
+  .fs-label-after {
+    position: absolute;
+    bottom: 24px; right: 16px;
+    background: rgba(45,158,107,0.9);
+    color: #fff; font-size: 12px; font-weight: 500;
+    padding: 4px 12px; border-radius: 20px;
+    pointer-events: none;
+  }
 
   input[type=file] { display: none; }
 
@@ -276,11 +393,15 @@
         <span class="result-badge" id="resultBadge">AI Generated</span>
       </div>
       <div class="loading-box" id="loadingBox">
-        <div class="loader"></div>
         <p><strong>CurbVision is generating your image...</strong><br>Adding <span id="loadingStyleName"></span> to this property</p>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-fill" id="progressFill"></div>
+        </div>
+        <div class="loading-step" id="loadingStep">Analyzing property edges...</div>
       </div>
       <div id="resultImageWrap" style="display:none;">
-        <div class="swipe-wrap" id="swipeWrap">
+        <div style="font-size:12px; color:var(--text-muted); text-align:center; padding:6px 0 4px; cursor:pointer;" onclick="openFullscreen()">⛶ Tap to view full screen</div>
+        <div class="swipe-wrap" id="swipeWrap" ondblclick="openFullscreen()">
           <img id="resultImage" class="swipe-after" src="" alt="Visualization">
           <div class="swipe-before-wrap" id="swipeBeforeWrap">
             <img id="beforeImage" class="swipe-before" src="" alt="Original">
@@ -305,6 +426,28 @@
     </div>
 
     <div style="height: 1rem;"></div>
+  </div>
+</div>
+
+<!-- FULLSCREEN VIEWER -->
+<div id="fullscreenViewer">
+  <div class="fs-header">
+    <span class="fs-style-name" id="fsStyleName"></span>
+    <button class="fs-close" onclick="closeFullscreen()">✕ Close</button>
+  </div>
+  <div class="fs-swipe-wrap" id="fsSwipeWrap">
+    <img id="fsAfterImg" class="fs-after" src="" alt="After">
+    <div class="fs-before-wrap" id="fsBeforeWrap">
+      <img id="fsBeforeImg" class="fs-before" src="" alt="Before">
+    </div>
+    <div class="fs-divider" id="fsDivider"></div>
+    <div class="fs-handle">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/><polyline points="9 18 3 12 9 6" transform="translate(6,0)"/>
+      </svg>
+    </div>
+    <div class="fs-label-before">Before</div>
+    <div class="fs-label-after" id="fsAfterLabel">After</div>
   </div>
 </div>
 
@@ -713,6 +856,7 @@ async function generate() {
   document.getElementById('loadingStyleName').textContent = style.name;
   document.getElementById('generateBtn').disabled = true;
   resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  startProgress();
 
   try {
     const res = await fetch('/api/visualize', {
@@ -737,7 +881,8 @@ async function generate() {
     session.usage = data.usage;
     updateUsagePill();
 
-    loadingBox.style.display = 'none';
+    finishProgress();
+    setTimeout(() => { loadingBox.style.display = 'none'; }, 400);
 
     if (data.imageData) {
       const imgSrc = `data:${data.imageMime};base64,${data.imageData}`;
@@ -755,6 +900,7 @@ async function generate() {
     resultActions.style.display = 'flex';
 
   } catch (err) {
+    stopProgress();
     loadingBox.style.display = 'none';
     resultDescription.textContent = 'Error: ' + (err.message || 'Something went wrong. Please try again.');
     resultDescription.style.display = 'block';
@@ -794,6 +940,101 @@ function openSettings() {
   document.getElementById('settingsModal').classList.add('open');
 }
 function closeSettings() { document.getElementById('settingsModal').classList.remove('open'); }
+
+
+// ── PROGRESS BAR ──
+let progressInterval = null;
+const LOADING_STEPS = [
+  'Analyzing property edges...',
+  'Identifying lawn boundaries...',
+  'Matching curbing profile...',
+  'Placing curbing along edges...',
+  'Adjusting shadows and lighting...',
+  'Refining details...',
+  'Almost ready...'
+];
+
+function startProgress() {
+  const fill = document.getElementById('progressFill');
+  const step = document.getElementById('loadingStep');
+  if (!fill || !step) return;
+  fill.style.width = '0%';
+  let pct = 0;
+  let stepIdx = 0;
+  step.textContent = LOADING_STEPS[0];
+  progressInterval = setInterval(() => {
+    pct += Math.random() * 6 + 2;
+    if (pct > 92) pct = 92;
+    fill.style.width = pct + '%';
+    const newIdx = Math.min(Math.floor(pct / (92 / LOADING_STEPS.length)), LOADING_STEPS.length - 1);
+    if (newIdx !== stepIdx) {
+      stepIdx = newIdx;
+      step.textContent = LOADING_STEPS[stepIdx];
+    }
+  }, 1200);
+}
+
+function finishProgress() {
+  clearInterval(progressInterval);
+  const fill = document.getElementById('progressFill');
+  if (fill) fill.style.width = '100%';
+}
+
+function stopProgress() {
+  clearInterval(progressInterval);
+}
+
+// ── FULLSCREEN VIEWER ──
+let fsDragging = false;
+
+function openFullscreen() {
+  const wrap = document.getElementById('resultImageWrap');
+  const afterSrc = document.getElementById('resultImage').src;
+  const beforeSrc = document.getElementById('beforeImage').src;
+  const styleName = document.getElementById('afterLabel').textContent;
+  if (!afterSrc) return;
+  document.getElementById('fsAfterImg').src = afterSrc;
+  document.getElementById('fsBeforeImg').src = beforeSrc;
+  document.getElementById('fsAfterLabel').textContent = styleName;
+  document.getElementById('fsStyleName').textContent = styleName;
+  setFsSlider(50);
+  document.getElementById('fullscreenViewer').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeFullscreen() {
+  document.getElementById('fullscreenViewer').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function setFsSlider(pct) {
+  pct = Math.max(2, Math.min(98, pct));
+  document.getElementById('fsBeforeWrap').style.clipPath = 'inset(0 ' + (100 - pct) + '% 0 0)';
+  document.getElementById('fsDivider').style.left = pct + '%';
+  document.querySelector('.fs-handle').style.left = pct + '%';
+}
+
+function initFullscreenSwipe() {
+  const wrap = document.getElementById('fsSwipeWrap');
+  if (!wrap) return;
+  wrap.addEventListener('mousedown', e => { fsDragging = true; e.preventDefault(); }, { passive: false });
+  wrap.addEventListener('touchstart', e => { fsDragging = true; e.preventDefault(); }, { passive: false });
+  document.addEventListener('mousemove', e => {
+    if (!fsDragging) return;
+    const r = document.getElementById('fsSwipeWrap').getBoundingClientRect();
+    setFsSlider(((e.clientX - r.left) / r.width) * 100);
+  });
+  document.addEventListener('touchmove', e => {
+    if (!fsDragging) return;
+    const r = document.getElementById('fsSwipeWrap').getBoundingClientRect();
+    setFsSlider(((e.touches[0].clientX - r.left) / r.width) * 100);
+    e.preventDefault();
+  }, { passive: false });
+  document.addEventListener('mouseup', () => fsDragging = false);
+  document.addEventListener('touchend', () => fsDragging = false);
+  // close on escape
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeFullscreen(); });
+}
 
 // ── SWIPE SLIDER ──
 function setSliderPosition(pct) {
