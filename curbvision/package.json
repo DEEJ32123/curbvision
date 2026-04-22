@@ -1,0 +1,11 @@
+{
+  "name": "curbvision",
+  "version": "1.0.0",
+  "description": "AI curbing visualization tool",
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "@vercel/kv": "^1.0.0"
+  }
+}
