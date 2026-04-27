@@ -204,9 +204,8 @@
     inset: 0;
     background: #000;
     z-index: 500;
-    flex-direction: column;
   }
-  #fullscreenViewer.active { display: flex; }
+  #fullscreenViewer.active { display: block; }
 
   .fs-header {
     display: flex;
@@ -236,10 +235,9 @@
     font-weight: 500;
   }
 
-.fs-swipe-wrap {
-    position: relative;
-    width: 100%;
-    height: 100%;
+  .fs-swipe-wrap {
+    position: absolute;
+    inset: 0;
     overflow: hidden;
     cursor: col-resize;
     user-select: none;
@@ -248,19 +246,17 @@
     background: #000;
   }
 
-.fs-after {
+  .fs-after {
     position: absolute;
     top: 0; left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100%; height: 100%;
     object-fit: contain;
-    display: block;
-    background: #000;
   }
 
-.fs-before-wrap {
+  .fs-before-wrap {
     position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
     overflow: hidden;
     clip-path: inset(0 50% 0 0);
     pointer-events: none;
@@ -269,11 +265,8 @@
   .fs-before {
     position: absolute;
     top: 0; left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100%; height: 100%;
     object-fit: contain;
-    display: block;
-    background: #000;
   }
 
   .fs-divider {
@@ -285,6 +278,7 @@
     transform: translateX(-50%);
     pointer-events: none;
     box-shadow: 0 0 8px rgba(0,0,0,0.6);
+    z-index: 5;
   }
 
   .fs-handle {
@@ -298,6 +292,7 @@
     display: flex; align-items: center; justify-content: center;
     box-shadow: 0 2px 16px rgba(0,0,0,0.5);
     pointer-events: none;
+    z-index: 6;
   }
 
   .fs-label-before {
@@ -307,6 +302,7 @@
     color: #fff; font-size: 12px; font-weight: 500;
     padding: 4px 12px; border-radius: 20px;
     pointer-events: none;
+    z-index: 7;
   }
 
   .fs-label-after {
@@ -316,6 +312,7 @@
     color: #fff; font-size: 12px; font-weight: 500;
     padding: 4px 12px; border-radius: 20px;
     pointer-events: none;
+    z-index: 7;
   }
 
 
