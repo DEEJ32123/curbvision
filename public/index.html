@@ -246,11 +246,13 @@
     background: #000;
   }
 
-  .fs-after {
+.fs-after {
     position: absolute;
     top: 0; left: 0;
     width: 100%; height: 100%;
     object-fit: contain;
+    pointer-events: none;
+    -webkit-user-drag: none;
   }
 
   .fs-before-wrap {
@@ -262,11 +264,13 @@
     pointer-events: none;
   }
 
-  .fs-before {
+ .fs-before {
     position: absolute;
     top: 0; left: 0;
     width: 100%; height: 100%;
     object-fit: contain;
+    pointer-events: none;
+    -webkit-user-drag: none;
   }
 
   .fs-divider {
@@ -499,9 +503,9 @@
     <button class="fs-close" onclick="closeFullscreen()">✕ Close</button>
   </div>
   <div class="fs-swipe-wrap" id="fsSwipeWrap">
-    <img id="fsAfterImg" class="fs-after" src="" alt="After">
+    <img id="fsAfterImg" class="fs-after" src="" alt="After" draggable="false">
     <div class="fs-before-wrap" id="fsBeforeWrap">
-      <img id="fsBeforeImg" class="fs-before" src="" alt="Before">
+      <img id="fsBeforeImg" class="fs-before" src="" alt="Before" draggable="false">
     </div>
     <div class="fs-divider" id="fsDivider"></div>
     <div class="fs-handle">
