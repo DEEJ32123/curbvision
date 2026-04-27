@@ -2,6 +2,7 @@
   "name": "curbvision",
   "version": "1.0.0",
   "description": "AI curbing visualization tool",
+  "type": "module",
   "engines": {
     "node": "24.x"
   },
