@@ -72,7 +72,7 @@ STRICT RULES - follow every one of these:
 - The curbing must cast a natural shadow that matches the existing light direction in the photo.
 - The final result must look like a real photograph taken after the curbing was physically installed on this property.
 
-Output only the edited photo with no text, no description, no explanation, and no commentary of any kind.;
+Output only the edited photo.`;
 
   try {
     const geminiRes = await fetch(
