@@ -88,7 +88,7 @@ Output only the edited photo with no text, no description, no explanation, and n
               ...stylePhotos.map(p => ({ inline_data: { mime_type: p.mime || 'image/jpeg', data: p.base64 } }))
             ]
           }],
-          generationConfig: { responseModalities: ['IMAGE'] }
+         generationConfig: { responseModalities: ['IMAGE'] }
         })
       }
     );
