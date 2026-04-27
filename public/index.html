@@ -564,7 +564,7 @@
       <div style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); margin-bottom:6px;">This month's usage</div>
       <div style="font-size:22px; font-weight:500;" id="settingsUsage">0 <span style="font-size:14px; color:var(--text-muted); font-weight:400;">/ 100 visualizations</span></div>
     </div>
-    <a href="https://buy.stripe.com/test_4gMeVd5NmeiIdlB6Q50Fi00" target="_blank" class="btn-primary" style="display:block; text-decoration:none; text-align:center; padding:14px; border-radius:var(--radius-sm); background:var(--green); color:#fff; font-size:15px; font-weight:500; margin-bottom:1rem;">Upgrade — $49/month</a>
+    <a onclick="window.open('https://buy.stripe.com/test_4gMeVd5NmeiIdlB6Q50Fi00?prefilled_email=' + encodeURIComponent(session.email), '_blank')" target="_blank" class="btn-primary" style="display:block; text-decoration:none; text-align:center; padding:14px; border-radius:var(--radius-sm); background:var(--green); color:#fff; font-size:15px; font-weight:500; margin-bottom:1rem;">Upgrade — $49/month</a>
     <button class="btn-action" style="width:100%; padding:12px;" onclick="logout()">Log out</button>
   </div>
 </div>
@@ -588,7 +588,7 @@
       <div class="lock-feature"><div class="lock-feature-dot">✓</div>Save & share results instantly</div>
       <div class="lock-feature"><div class="lock-feature-dot">✓</div>Works on any phone or tablet</div>
     </div>
-    <a href="https://buy.stripe.com/test_4gMeVd5NmeiIdlB6Q50Fi00" target="_blank" class="btn-primary" style="display:block; text-decoration:none; text-align:center; padding:14px; border-radius:var(--radius-sm); background:var(--green); color:#fff; font-size:15px; font-weight:500;">Subscribe — $49/month</a>
+    <a onclick="window.open('https://buy.stripe.com/test_4gMeVd5NmeiIdlB6Q50Fi00?prefilled_email=' + encodeURIComponent(session.email), '_blank')" target="_blank" class="btn-primary" style="display:block; text-decoration:none; text-align:center; padding:14px; border-radius:var(--radius-sm); background:var(--green); color:#fff; font-size:15px; font-weight:500;">Subscribe — $49/month</a>
     <hr class="lock-divider">
     <span class="unlock-label">Already subscribed? Enter your unlock code</span>
     <div class="unlock-row">
