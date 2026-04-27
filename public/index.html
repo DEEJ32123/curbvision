@@ -251,8 +251,8 @@
     top: 0; left: 0;
     width: 100%; height: 100%;
     object-fit: contain;
-    -webkit-user-drag: none;
   }
+
   .fs-before-wrap {
     position: absolute;
     top: 0; left: 0;
@@ -262,12 +262,11 @@
     pointer-events: none;
   }
 
-.fs-before {
+  .fs-before {
     position: absolute;
     top: 0; left: 0;
     width: 100%; height: 100%;
     object-fit: contain;
-    -webkit-user-drag: none;
   }
 
   .fs-divider {
@@ -500,9 +499,9 @@
     <button class="fs-close" onclick="closeFullscreen()">✕ Close</button>
   </div>
   <div class="fs-swipe-wrap" id="fsSwipeWrap">
-    <img id="fsAfterImg" class="fs-after" src="" alt="After" draggable="false">
+    <img id="fsAfterImg" class="fs-after" src="" alt="After">
     <div class="fs-before-wrap" id="fsBeforeWrap">
-      <img id="fsBeforeImg" class="fs-before" src="" alt="Before" draggable="false">
+      <img id="fsBeforeImg" class="fs-before" src="" alt="Before">
     </div>
     <div class="fs-divider" id="fsDivider"></div>
     <div class="fs-handle">
@@ -1157,26 +1156,7 @@ function stopProgress() {
 
 // ── FULLSCREEN VIEWER ──
 let fsDragging = false;
-
-function openFullscreen() {
-  const wrap = document.getElementById('resultImageWrap');
-  const afterSrc = document.getElementById('resultImage').src;
-  const beforeSrc = document.getElementById('beforeImage').src;
-  const styleName = document.getElementById('afterLabel').textContent;
-  if (!afterSrc) return;
-  document.getElementById('fsAfterImg').src = afterSrc;
-  document.getElementById('fsBeforeImg').src = beforeSrc;
-  document.getElementById('fsAfterLabel').textContent = styleName;
-  document.getElementById('fsStyleName').textContent = styleName;
-  setFsSlider(50);
-  document.getElementById('fullscreenViewer').classList.add('active');
-  document.body.style.overflow = 'hidden';
-}
-
-function closeFullscreen() {
-  document.getElementById('fullscreenViewer').classList.remove('active');
-  document.body.style.overflow = '';
-}
+let fsInitialized = false;
 
 function setFsSlider(pct) {
   pct = Math.max(2, Math.min(98, pct));
@@ -1185,33 +1165,61 @@ function setFsSlider(pct) {
   document.querySelector('.fs-handle').style.left = pct + '%';
 }
 
+function openFullscreen() {
+  const afterSrc = document.getElementById('resultImage').src;
+  const beforeSrc = document.getElementById('beforeImage').src;
+  const styleName = document.getElementById('afterLabel').textContent;
+  if (!afterSrc || afterSrc === window.location.href) return;
+  document.getElementById('fsAfterImg').src = afterSrc;
+  document.getElementById('fsBeforeImg').src = beforeSrc;
+  document.getElementById('fsAfterLabel').textContent = styleName;
+  document.getElementById('fsStyleName').textContent = styleName;
+  document.getElementById('fullscreenViewer').classList.add('active');
+  document.body.style.overflow = 'hidden';
+  // set slider after display so getBoundingClientRect works
+  requestAnimationFrame(() => setFsSlider(50));
+  // attach events here so element is visible and has real dimensions
+  if (!fsInitialized) {
+    fsInitialized = true;
+    const viewer = document.getElementById('fullscreenViewer');
+
+    function getX(e) { return e.touches ? e.touches[0].clientX : e.clientX; }
+
+    function onStart(e) {
+      fsDragging = true;
+      e.preventDefault();
+      e.stopPropagation();
+      const r = viewer.getBoundingClientRect();
+      setFsSlider(((getX(e) - r.left) / r.width) * 100);
+    }
+
+    function onMove(e) {
+      if (!fsDragging) return;
+      e.preventDefault();
+      const r = viewer.getBoundingClientRect();
+      setFsSlider(((getX(e) - r.left) / r.width) * 100);
+    }
+
+    function onEnd() { fsDragging = false; }
+
+    viewer.addEventListener('mousedown', onStart, { passive: false });
+    viewer.addEventListener('touchstart', onStart, { passive: false });
+    viewer.addEventListener('mousemove', onMove, { passive: false });
+    viewer.addEventListener('touchmove', onMove, { passive: false });
+    viewer.addEventListener('mouseup', onEnd);
+    viewer.addEventListener('touchend', onEnd);
+    viewer.addEventListener('mouseleave', onEnd);
+  }
+}
+
+function closeFullscreen() {
+  fsDragging = false;
+  document.getElementById('fullscreenViewer').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
 function initFullscreenSwipe() {
-  const wrap = document.getElementById('fsSwipeWrap');
-  if (!wrap) return;
-
-  function startFs(e) {
-    fsDragging = true;
-    e.preventDefault();
-    e.stopPropagation();
-    moveFs(e);
-  }
-
-  function moveFs(e) {
-    if (!fsDragging) return;
-    const r = wrap.getBoundingClientRect();
-    const x = e.touches ? e.touches[0].clientX : e.clientX;
-    setFsSlider(((x - r.left) / r.width) * 100);
-  }
-
-  function endFs() { fsDragging = false; }
-
-  wrap.addEventListener('mousedown', startFs, { passive: false });
-  wrap.addEventListener('touchstart', startFs, { passive: false });
-  wrap.addEventListener('mousemove', moveFs, { passive: false });
-  wrap.addEventListener('touchmove', moveFs, { passive: false });
-  wrap.addEventListener('mouseup', endFs);
-  wrap.addEventListener('touchend', endFs);
-  wrap.addEventListener('mouseleave', endFs);
+  // events now attached in openFullscreen() so element is visible
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeFullscreen(); });
 }
 
