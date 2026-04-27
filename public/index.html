@@ -722,6 +722,14 @@ function logout() {
 function updateUsagePill() {
   if (!session) return;
   const pill = document.getElementById('usagePill');
+  const unlocked = localStorage.getItem('cv_unlocked');
+  if (unlocked !== 'true') {
+    // trial users - hide usage counter
+    pill.style.display = 'none';
+    return;
+  }
+  // paid users - show usage counter
+  pill.style.display = '';
   const pct = session.usage / session.limit;
   pill.textContent = `${session.usage} / ${session.limit}`;
   pill.className = 'usage-pill';
@@ -733,9 +741,25 @@ function updateUsagePill() {
 function checkTrialBanner() {
   const unlocked = localStorage.getItem('cv_unlocked');
   if (unlocked === 'true') return;
-  const trialStart = localStorage.getItem('cv_trial_start');
-  if (!trialStart) { localStorage.setItem('cv_trial_start', Date.now().toString()); }
-  const elapsed = Date.now() - parseInt(localStorage.getItem('cv_trial_start'));
+  // use server-side trial start from session token creation
+  // fall back to localStorage if not available
+  let trialStart = localStorage.getItem('cv_trial_start');
+  if (!trialStart && session) {
+    // store it now, tied to this account
+    trialStart = Date.now().toString();
+    localStorage.setItem('cv_trial_start_' + session.email, trialStart);
+    localStorage.setItem('cv_trial_start', trialStart);
+  }
+  // prefer account-tied version
+  if (session) {
+    const accountTrial = localStorage.getItem('cv_trial_start_' + session.email);
+    if (accountTrial) trialStart = accountTrial;
+    else {
+      localStorage.setItem('cv_trial_start_' + session.email, trialStart);
+    }
+  }
+  if (!trialStart) return;
+  const elapsed = Date.now() - parseInt(trialStart);
   const daysLeft = Math.max(0, 14 - Math.floor(elapsed / (1000 * 60 * 60 * 24)));
   if (daysLeft === 0) { openLockScreen(); return; }
   const banner = document.getElementById('trialBanner');
