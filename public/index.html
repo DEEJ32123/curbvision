@@ -529,6 +529,7 @@
     <div class="modal-styles-list" id="modalStylesList"></div>
 
     <!-- ADD NEW STYLE -->
+   <div id="settingsEmail" style="font-size:13px; color:var(--text-muted); margin-bottom:1rem;"></div>
     <div style="background:var(--surface2); border-radius:var(--radius-sm); padding:1rem; border:1px solid var(--border); margin-top:4px;">
       <div style="font-size:12px; font-weight:500; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">Add new style</div>
       <input type="text" class="name-input" id="styleNameInput" placeholder="Style name (e.g. Classic Mow Curb)" style="display:block; margin-bottom:10px; margin-top:0;">
@@ -1144,6 +1145,7 @@ function shareResult() {
 // ── SETTINGS ──
 function openSettings() {
   if (session) {
+    document.getElementById('settingsEmail').textContent = session.email;
     document.getElementById('settingsUsage').innerHTML = `${session.usage} <span style="font-size:14px; color:var(--text-muted); font-weight:400;">/ ${session.limit} visualizations</span>`;
   }
   document.getElementById('settingsModal').classList.add('open');
