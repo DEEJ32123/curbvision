@@ -1178,11 +1178,27 @@ function shareResult() {
 function openSettings() {
   if (session) {
     document.getElementById('settingsEmail').textContent = session.email;
-    document.getElementById('settingsUsage').innerHTML = `${session.usage} <span style="font-size:14px; color:var(--text-muted); font-weight:400;">/ ${session.limit} visualizations</span>`;
+    const usageBox = document.getElementById('settingsUsageBox');
+    if (session.limit === 100) {
+      usageBox.style.display = 'block';
+      document.getElementById('settingsUsage').innerHTML = `${session.usage} <span style="font-size:14px; color:var(--text-muted); font-weight:400;">/ ${session.limit} visualizations</span>`;
+      // fetch fresh count from server
+      fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'validate', token: localStorage.getItem('cv_token') })
+      }).then(r => r.json()).then(data => {
+        if (data.valid) {
+          session.usage = data.usage;
+          document.getElementById('settingsUsage').innerHTML = `${data.usage} <span style="font-size:14px; color:var(--text-muted); font-weight:400;">/ ${data.limit} visualizations</span>`;
+        }
+      }).catch(() => {});
+    } else {
+      usageBox.style.display = 'none';
+    }
   }
   document.getElementById('settingsModal').classList.add('open');
 }
-function closeSettings() { document.getElementById('settingsModal').classList.remove('open'); }
 
 
 // ── PROGRESS BAR ──
