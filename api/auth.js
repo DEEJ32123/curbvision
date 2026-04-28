@@ -74,7 +74,7 @@ export default async function handler(req, res) {
     const newToken = generateToken();
     await kvSet(`token:${newToken}`, userId, 60 * 60 * 24 * 30);
     await kvSet(`trial:${userId}`, String(now));
-    return res.status(200).json({ token: newToken, email: emailClean, usage: 0, limit: 100 });
+    return res.status(200).json({ token: newToken, email: emailClean, usage: 0, limit: 50, trialStart: now });
   }
 
   // ── LOGIN ──
