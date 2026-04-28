@@ -496,7 +496,7 @@
 <div id="fullscreenViewer">
   <div class="fs-header">
     <span class="fs-style-name" id="fsStyleName"></span>
-    <button class="fs-close" onclick="closeFullscreen()">✕ Close</button>
+    <button class="fs-close" onclick="closeFullscreen()" onpointerdown="event.stopPropagation()" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()">✕ Close</button>
   </div>
   <div class="fs-swipe-wrap" id="fsSwipeWrap">
     <img id="fsAfterImg" class="fs-after" src="" alt="After">
