@@ -413,7 +413,6 @@
 
 <!-- AUTH SCREEN -->
 <div id="authScreen" class="screen active">
-  <img src="/icon-192.png" alt="CurbVision" style="width:80px; height:80px; border-radius:20px; margin-bottom:12px;">
   <div class="auth-logo">CURB<span>VISION</span></div>
   <div class="auth-tagline">AI Curbing Visualization</div>
   <div class="auth-card">
@@ -434,7 +433,7 @@
 <!-- APP SCREEN -->
 <div id="appScreen" class="screen">
   <div class="app-header">
-    <img src="/icon-192.png" alt="CurbVision" style="height:32px; width:32px; border-radius:8px;">
+    <div class="app-logo">CURB<span>VISION</span></div>
     <div class="header-right">
       <span class="usage-pill" id="usagePill">0 / 50</span>
       <button class="settings-btn" onclick="openSettings()">⚙ Menu</button>
@@ -509,7 +508,7 @@
       </div>
       <div class="result-description" id="resultDescription"></div>
       <div class="result-actions" id="resultActions">
-        <button class="btn-action" style="flex:2;" onclick="shareResult()">📸 Save Image</button>
+        <button class="btn-action" style="flex:2;" onclick="shareResult()" id="saveShareBtn">📸 Save Image</button>
         <button class="btn-action" onclick="generate()">Try again</button>
       </div>
     </div>
@@ -757,6 +756,9 @@ async function showApp() {
   renderStyles();
   checkReady();
   initSwipe();
+  // update save button label based on device capability
+  const btn = document.getElementById('saveShareBtn');
+  if (btn && !navigator.canShare) btn.textContent = '⬇ Download Image';
 }
 
 function logout() {
