@@ -47,12 +47,16 @@ export default async function handler(req, res) {
 
   // ── USAGE CHECK ──
   const monthKey = new Date().toISOString().slice(0, 7);
-  const usageKey = `usage:${userId}:${monthKey}`;
-  const usage = Number(await kvGet(usageKey) || 0);
   const unlocked = await kvGet(`unlocked:${userId}`);
+  // paid users: monthly limit that resets. trial users: lifetime limit, never resets
+  const usageKey = unlocked ? `usage:${userId}:${monthKey}` : `trial_usage:${userId}`;
   const LIMIT = unlocked ? 100 : 50;
+  const usage = Number(await kvGet(usageKey) || 0);
   if (usage >= LIMIT) {
-    return res.status(429).json({ error: `You've reached your ${LIMIT} visualization limit for this month. Resets on the 1st.`, usage, limit: LIMIT });
+    const msg = unlocked
+      ? `You've reached your ${LIMIT} visualization limit for this month. Resets on the 1st.`
+      : `You've used all ${LIMIT} free visualizations. Upgrade to continue.`;
+    return res.status(429).json({ error: msg, usage, limit: LIMIT });
   }
 
   const { propertyImage, propertyMime, stylePhotos, styleName } = req.body || {};
@@ -109,7 +113,8 @@ Output only the edited photo.`;
     if (!imageData) throw new Error('No image returned from Gemini');
 
     const newUsage = await kvIncr(usageKey);
-    await kvExpire(usageKey, 60 * 60 * 24 * 35);
+    // only expire monthly keys for paid users, trial lifetime key never expires
+    if (unlocked) await kvExpire(usageKey, 60 * 60 * 24 * 35);
     await kvIncr(`stats:total_generations`);
     await kvIncr(`stats:generations:${monthKey}`);
 
