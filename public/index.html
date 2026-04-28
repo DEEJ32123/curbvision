@@ -635,7 +635,7 @@ async function init() {
       });
       const data = await res.json();
       if (data.valid) {
-        session = { token, email: data.email, usage: data.usage, limit: data.limit };
+        session = { token, email: data.email, usage: data.usage, limit: data.limit, trialStart: data.trialStart };
         showApp();
         return;
       }
@@ -678,7 +678,7 @@ async function handleAuth() {
 
     if (!res.ok) { showAuthError(data.error || 'Something went wrong'); return; }
 
-    session = { token: data.token, email: data.email, usage: data.usage, limit: data.limit };
+    session = { token: data.token, email: data.email, usage: data.usage, limit: data.limit, trialStart: data.trialStart };
     localStorage.setItem('cv_token', data.token);
     showApp();
 
@@ -728,6 +728,12 @@ function logout() {
 function updateUsagePill() {
   if (!session) return;
   const pill = document.getElementById('usagePill');
+  const unlocked = localStorage.getItem('cv_unlocked') === 'true' || session.limit === 100;
+  if (!unlocked) {
+    pill.style.display = 'none';
+    return;
+  }
+  pill.style.display = '';
   const pct = session.usage / session.limit;
   pill.textContent = `${session.usage} / ${session.limit}`;
   pill.className = 'usage-pill';
@@ -737,11 +743,24 @@ function updateUsagePill() {
 
 // ── TRIAL ──
 function checkTrialBanner() {
-  const unlocked = localStorage.getItem('cv_unlocked');
-  if (unlocked === 'true') return;
-  const trialStart = localStorage.getItem('cv_trial_start');
-  if (!trialStart) { localStorage.setItem('cv_trial_start', Date.now().toString()); }
-  const elapsed = Date.now() - parseInt(localStorage.getItem('cv_trial_start'));
+  // paid users — no banner
+  if (session && session.limit === 100) return;
+  if (localStorage.getItem('cv_unlocked') === 'true') return;
+
+  // use server trial start if available, fall back to local
+  let trialStart = session && session.trialStart
+    ? session.trialStart
+    : localStorage.getItem('cv_trial_start');
+
+  if (!trialStart) {
+    trialStart = Date.now().toString();
+    localStorage.setItem('cv_trial_start', trialStart);
+  } else {
+    // keep local in sync with server
+    localStorage.setItem('cv_trial_start', String(trialStart));
+  }
+
+  const elapsed = Date.now() - parseInt(trialStart);
   const daysLeft = Math.max(0, 14 - Math.floor(elapsed / (1000 * 60 * 60 * 24)));
   if (daysLeft === 0) { openLockScreen(); return; }
   const banner = document.getElementById('trialBanner');
