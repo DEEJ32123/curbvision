@@ -489,6 +489,11 @@
     </div>
 
     <div style="height: 1rem;"></div>
+    <div style="text-align:center; padding: 0.5rem 0 1rem; font-size:11px; color:var(--text-dim); line-height:1.8;">
+      CurbVision is a product of Hard Line Edge LLC<br>
+      <a href="mailto:hello@curbvision.app" style="color:var(--text-dim); text-decoration:none;">hello@curbvision.app</a><br>
+      <a href="tel:7858444691" style="color:var(--text-dim); text-decoration:none;">Call or text 785-844-4691</a>
+    </div>
   </div>
 </div>
 
@@ -559,7 +564,6 @@
       <span class="modal-title">Menu</span>
       <button class="modal-close" onclick="closeSettings()">Close</button>
     </div>
-    <div style="font-size:13px; color:var(--text-muted); margin-bottom:1rem;" id="settingsEmail"></div>
     <div style="background:var(--surface2); border-radius:var(--radius-sm); padding:12px 14px; margin-bottom:1rem; border:1px solid var(--border);">
       <div style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); margin-bottom:6px;">This month's usage</div>
       <div style="font-size:22px; font-weight:500;" id="settingsUsage">0 <span style="font-size:14px; color:var(--text-muted); font-weight:400;">/ 100 visualizations</span></div>
@@ -1140,7 +1144,6 @@ function shareResult() {
 // ── SETTINGS ──
 function openSettings() {
   if (session) {
-    document.getElementById('settingsEmail').textContent = session.email;
     document.getElementById('settingsUsage').innerHTML = `${session.usage} <span style="font-size:14px; color:var(--text-muted); font-weight:400;">/ ${session.limit} visualizations</span>`;
   }
   document.getElementById('settingsModal').classList.add('open');
