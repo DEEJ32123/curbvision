@@ -101,10 +101,7 @@ export default async function handler(req, res) {
   }
 
   // ── SUBSCRIPTION CANCELLED ──
-  if (
-    event.type === 'customer.subscription.deleted' ||
-    event.type === 'customer.subscription.paused'
-  ) {
+  if (event.type === 'customer.subscription.deleted') {
     await kvSetLarge(`unlocked:${userId}`, 'false');
     console.log(`Locked user: ${email}`);
   }
