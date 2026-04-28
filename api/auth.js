@@ -54,7 +54,8 @@ export default async function handler(req, res) {
     const monthKey = new Date().toISOString().slice(0, 7);
     const usage = await kvGet(`usage:${userId}:${monthKey}`) || 0;
     const unlocked = await kvGet(`unlocked:${userId}`);
-    return res.status(200).json({ valid: true, email: user.email, usage: Number(usage), limit: unlocked ? 100 : 50 });
+    const trialStart = await kvGet(`trial:${userId}`);
+    return res.status(200).json({ valid: true, email: user.email, usage: Number(usage), limit: unlocked ? 100 : 50, trialStart: trialStart ? Number(trialStart) : null });
   }
 
   // ── SIGNUP ──
@@ -89,7 +90,8 @@ export default async function handler(req, res) {
     const monthKey = new Date().toISOString().slice(0, 7);
     const usage = await kvGet(`usage:${userId}:${monthKey}`) || 0;
     const unlocked = await kvGet(`unlocked:${userId}`);
-    return res.status(200).json({ token: newToken, email: emailClean, usage: Number(usage), limit: unlocked ? 100 : 50 });
+    const trialStart = await kvGet(`trial:${userId}`);
+    return res.status(200).json({ token: newToken, email: emailClean, usage: Number(usage), limit: unlocked ? 100 : 50, trialStart: trialStart ? Number(trialStart) : null });
   }
 
   return res.status(400).json({ error: 'Invalid action' });
