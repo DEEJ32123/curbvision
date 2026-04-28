@@ -590,7 +590,7 @@
       <button class="modal-close" onclick="closeSettings()">Close</button>
     </div>
     <div id="settingsEmail" style="font-size:13px; color:var(--text-muted); margin-bottom:1rem; padding: 0 2px;"></div>
-    <div style="background:var(--surface2); border-radius:var(--radius-sm); padding:12px 14px; margin-bottom:1rem; border:1px solid var(--border);">
+    <div id="settingsUsageBox" style="background:var(--surface2); border-radius:var(--radius-sm); padding:12px 14px; margin-bottom:1rem; border:1px solid var(--border);">
       <div style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); margin-bottom:6px;">This month's usage</div>
       <div style="font-size:22px; font-weight:500;" id="settingsUsage">0 <span style="font-size:14px; color:var(--text-muted); font-weight:400;">/ 100 visualizations</span></div>
     </div>
@@ -756,10 +756,9 @@ async function showApp() {
   renderStyles();
   checkReady();
   initSwipe();
-// update save button label based on device capability
+  // update save button label based on device capability
   const btn = document.getElementById('saveShareBtn');
-  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-  if (btn && !isMobile) btn.textContent = '⬇ Download Image';
+  if (btn && !navigator.canShare) btn.textContent = '⬇ Download Image';
 }
 
 function logout() {
@@ -773,8 +772,9 @@ function logout() {
 function updateUsagePill() {
   if (!session) return;
   const pill = document.getElementById('usagePill');
-  const unlocked = localStorage.getItem('cv_unlocked') === 'true' || session.limit === 100;
-  if (!unlocked) {
+  // only show counter for paid users (limit === 100)
+  // trial users never see the counter
+  if (session.limit !== 100) {
     pill.style.display = 'none';
     return;
   }
@@ -1167,7 +1167,8 @@ function shareResult() {
   if (isMobile && navigator.share) {
     fetch(src).then(r => r.blob()).then(blob => {
       const file = new File([blob], 'curbvision.png', { type: 'image/png' });
-      navigator.share({ files: [file], title: 'CurbVision — Curbing Visualization' }).catch(() => saveResult());
+      // dont fallback to saveResult on cancel — user just dismissed the sheet
+      navigator.share({ files: [file], title: 'CurbVision — Curbing Visualization' }).catch(() => {});
     });
   } else {
     saveResult();
@@ -1182,7 +1183,6 @@ function openSettings() {
     if (session.limit === 100) {
       usageBox.style.display = 'block';
       document.getElementById('settingsUsage').innerHTML = `${session.usage} <span style="font-size:14px; color:var(--text-muted); font-weight:400;">/ ${session.limit} visualizations</span>`;
-      // fetch fresh count from server
       fetch('/api/auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1199,6 +1199,7 @@ function openSettings() {
   }
   document.getElementById('settingsModal').classList.add('open');
 }
+function closeSettings() { document.getElementById('settingsModal').classList.remove('open'); }
 
 
 // ── PROGRESS BAR ──
