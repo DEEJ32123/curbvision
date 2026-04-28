@@ -756,9 +756,10 @@ async function showApp() {
   renderStyles();
   checkReady();
   initSwipe();
-  // update save button label based on device capability
+// update save button label based on device capability
   const btn = document.getElementById('saveShareBtn');
-  if (btn && !navigator.canShare) btn.textContent = '⬇ Download Image';
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  if (btn && !isMobile) btn.textContent = '⬇ Download Image';
 }
 
 function logout() {
@@ -1162,12 +1163,15 @@ function shareResult() {
   const wrap = document.getElementById('resultImageWrap');
   const src = wrap.dataset.imgSrc;
   if (!src) { showToast('No image to share'); return; }
-  if (navigator.share) {
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  if (isMobile && navigator.share) {
     fetch(src).then(r => r.blob()).then(blob => {
       const file = new File([blob], 'curbvision.png', { type: 'image/png' });
-      navigator.share({ files: [file], title: 'CurbVision', text: 'Curbing visualization' }).catch(() => {});
+      navigator.share({ files: [file], title: 'CurbVision — Curbing Visualization' }).catch(() => saveResult());
     });
-  } else { showToast('Use Save image to share'); }
+  } else {
+    saveResult();
+  }
 }
 
 // ── SETTINGS ──
