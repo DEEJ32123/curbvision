@@ -1,0 +1,9 @@
+{
+  "functions": {
+    "api/visualize.js": { "maxDuration": 300 }
+  },
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/(.*)", "destination": "/public/index.html" }
+  ]
+}
